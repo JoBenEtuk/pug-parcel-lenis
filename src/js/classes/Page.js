@@ -1,134 +1,81 @@
-import AutoBind from "auto-bind";
-import Prefix from "prefix";
-import NormalizeWheel from "normalize-wheel";
-
-import { clamp, lerp } from "../utils/math";
+import AutoBind from 'auto-bind'
+import Lenis from '@studio-freight/lenis'
 
 export default class Page {
-  constructor({ classes, element, elements }) {
-    AutoBind(this);
+	constructor({ classes, element, elements }) {
+		AutoBind(this)
 
-    this.classes = {
-      ...classes,
-    };
+		this.classes = {
+			...classes,
+		}
 
-    this.selector = element;
-    this.selectorChildren = { ...elements };
-    this.create();
+		this.selector = element
+		this.selectorChildren = { ...elements }
+		this.create()
+	}
 
-    this.scroll = {
-      ease: 0.1,
-      position: 0,
-      current: 0,
-      target: 0,
-      limit: 0,
-    };
+	scroll() {
+		const lenis = new Lenis({
+			duration: 1.2,
+			easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+			direction: 'vertical',
+			gestureDirection: 'vertical',
+			smooth: true,
+			smoothTouch: false,
+			touchMultiplier: 2,
+		})
 
-    this.transformPrefix = Prefix("transform");
-  }
+		function raf(time) {
+			lenis.raf(time)
+			requestAnimationFrame(raf)
+		}
 
-  create() {
-    if (this.selector instanceof HTMLElement) {
-      this.element = this.selector;
-    } else {
-      this.element = document.querySelector(this.selector);
-    }
+		requestAnimationFrame(raf)
+	}
 
-    this.elements = {};
+	create() {
+		if (this.selector instanceof HTMLElement) {
+			this.element = this.selector
+		} else {
+			this.element = document.querySelector(this.selector)
+		}
 
-    Object.keys(this.selectorChildren).forEach((key) => {
-      const entry = this.selectorChildren[key];
+		this.elements = {}
 
-      if (
-        entry instanceof HTMLElement ||
-        entry instanceof NodeList ||
-        Array.isArray(entry)
-      ) {
-        this.elements[key] = entry;
-      } else {
-        this.elements[key] = this.element.querySelectorAll(entry);
+		Object.keys(this.selectorChildren).forEach((key) => {
+			const entry = this.selectorChildren[key]
 
-        if (this.elements[key].length === 0) {
-          this.elements[key] = null;
-        } else if (this.elements[key].length === 1) {
-          this.elements[key] = this.element.querySelector(entry);
-        }
-      }
-    });
-  }
+			if (
+				entry instanceof HTMLElement ||
+				entry instanceof NodeList ||
+				Array.isArray(entry)
+			) {
+				this.elements[key] = entry
+			} else {
+				this.elements[key] = this.element.querySelectorAll(entry)
 
-  transform(element, y) {
-    element.style[this.transformPrefix] = `translate3d(0, ${-Math.round(
-      y
-    )}px, 0)`;
-  }
+				if (this.elements[key].length === 0) {
+					this.elements[key] = null
+				} else if (this.elements[key].length === 1) {
+					this.elements[key] = this.element.querySelector(entry)
+				}
+			}
+		})
 
-  show() {
-    this.scroll.position = 0;
-    this.scroll.current = 0;
-    this.scroll.target = 0;
+		this.scroll()
+	}
 
-    return Promise.resolve();
-  }
+	show() {
+		return Promise.resolve()
+	}
 
-  hide() {
-    return Promise.resolve();
-  }
+	hide() {
+		return Promise.resolve()
+	}
 
-  /**
-   * Events
-   */
+	onTouchMove(event) {
+		const y = event.touches ? event.touches[0].clientY : event.clientY
+	}
 
-  onResize() {
-    this.scroll.limit = this.elements.wrapper.clientHeight - window.innerHeight;
-  }
-
-  onWheel(event) {
-    const normalized = NormalizeWheel(event);
-    const speed = normalized.pixelY;
-
-    this.scroll.target += speed;
-  }
-
-  onTouchDown(event) {
-    this.isDown = true;
-
-    this.scroll.position = this.scroll.current;
-    this.start = event.touches ? event.touches[0].clientY : event.clientY;
-  }
-
-  onTouchMove(event) {
-    if (!this.isDown) return;
-
-    const y = event.touches ? event.touches[0].clientY : event.clientY;
-    const distance = (this.start - y) * 2;
-
-    this.scroll.target = this.scroll.position + distance;
-  }
-
-  onTouchUp(event) {
-    this.isDown = false;
-  }
-
-  /**
-   * Update
-   */
-
-  update() {
-    this.scroll.target = clamp(0, this.scroll.limit, this.scroll.target);
-
-    this.scroll.current = lerp(
-      this.scroll.current,
-      this.scroll.target,
-      this.scroll.ease
-    );
-
-    if (this.scroll.current < 0.1) {
-      this.scroll.current = 0;
-    }
-
-    if (this.elements.wrapper) {
-      this.transform(this.elements.wrapper, this.scroll.current);
-    }
-  }
+	update() {}
 }

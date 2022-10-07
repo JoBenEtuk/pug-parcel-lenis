@@ -27,12 +27,4 @@ export default class extends Page {
 
 		return super.hide()
 	}
-
-	onResize() {
-		super.onResize()
-	}
-
-	update() {
-		super.update()
-	}
 }

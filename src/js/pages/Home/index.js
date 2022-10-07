@@ -1,38 +1,30 @@
-import Page from "../../classes/Page";
-import { delay } from "../../utils/math";
+import Page from '../../classes/Page'
+import { delay } from '../../utils/math'
 
 export default class extends Page {
-  constructor() {
-    super({
-      classes: {
-        active: "home--active",
-      },
-      element: ".home",
-      elements: {
-        wrapper: ".home__wrapper",
-      },
-    });
-  }
+	constructor() {
+		super({
+			classes: {
+				active: 'home--active',
+			},
+			element: '.home',
+			elements: {
+				wrapper: '.home__wrapper',
+			},
+		})
+	}
 
-  show() {
-    this.element.classList.add(this.classes.active);
+	show() {
+		this.element.classList.add(this.classes.active)
 
-    return super.show();
-  }
+		return super.show()
+	}
 
-  async hide() {
-    this.element.classList.remove(this.classes.active);
+	async hide() {
+		this.element.classList.remove(this.classes.active)
 
-    await delay(400);
+		await delay(400)
 
-    return super.hide();
-  }
-
-  onResize() {
-    super.onResize();
-  }
-
-  update() {
-    super.update();
-  }
+		return super.hide()
+	}
 }

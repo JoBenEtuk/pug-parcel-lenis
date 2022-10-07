@@ -26,7 +26,6 @@ class App {
 
 		// if (this.url.indexOf("/case") > -1) {
 		//   this.page = this.case;
-		//   this.page.onResize();
 		// } else {
 		this.page = this.pages[this.url]
 		// }
@@ -36,8 +35,6 @@ class App {
 		this.addEventListeners()
 		this.addLinksEventsListeners()
 		this.update()
-
-		this.onResize()
 	}
 
 	createPreloader() {
@@ -47,7 +44,6 @@ class App {
 	}
 
 	onPreloaded() {
-		this.onResize()
 		this.page.show()
 	}
 
@@ -87,7 +83,6 @@ class App {
 			this.page = this.pages[this.url]
 		}
 
-		this.onResize()
 		await this.page.show(this.url)
 
 		this.isFetching = false
@@ -97,36 +92,11 @@ class App {
 	 * Events
 	 */
 
-	onResize() {
-		if (this.page) {
-			this.page.onResize()
-		}
-	}
-
-	onWheel(event) {
-		if (this.page && this.page.onWheel) {
-			this.page.onWheel(event)
-		}
-	}
-
 	onPopState() {
 		this.onChange({
 			url: window.location.pathname,
 			push: false,
 		})
-	}
-
-	onTouchDown(event) {
-		event.stopPropagation()
-
-		if (!Detection.isMobile() && event.target.tagName === 'A') return
-
-		this.mouse.x = event.touches ? event.touches[0].clientX : event.clientX
-		this.mouse.y = event.touches ? event.touches[0].clientY : event.clientY
-
-		if (this.page && this.page.onTouchDown) {
-			this.page.onTouchDown(event)
-		}
 	}
 
 	onTouchMove(event) {
@@ -137,17 +107,6 @@ class App {
 
 		if (this.page && this.page.onTouchMove) {
 			this.page.onTouchMove(event)
-		}
-	}
-
-	onTouchUp(event) {
-		event.stopPropagation()
-
-		this.mouse.x = event.changedTouches ? event.changedTouches[0].clientX : event.clientX
-		this.mouse.y = event.changedTouches ? event.changedTouches[0].clientY : event.clientY
-
-		if (this.page && this.page.onTouchUp) {
-			this.page.onTouchUp(event)
 		}
 	}
 
@@ -187,19 +146,10 @@ class App {
 	}
 
 	addEventListeners() {
-		window.addEventListener('resize', this.onResize, { passive: true })
 		window.addEventListener('popstate', this.onPopState, { passive: true })
 
-		window.addEventListener('mousewheel', this.onWheel, { passive: true })
-		window.addEventListener('wheel', this.onWheel, { passive: true })
-
-		window.addEventListener('mousedown', this.onTouchDown, { passive: true })
 		window.addEventListener('mousemove', this.onTouchMove, { passive: true })
-		window.addEventListener('mouseup', this.onTouchUp, { passive: true })
-
-		window.addEventListener('touchstart', this.onTouchDown, { passive: true })
 		window.addEventListener('touchmove', this.onTouchMove, { passive: true })
-		window.addEventListener('touchend', this.onTouchUp, { passive: true })
 	}
 }
 

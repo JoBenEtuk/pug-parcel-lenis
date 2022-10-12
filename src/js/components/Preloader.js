@@ -19,10 +19,6 @@ export default class Preloader extends Component {
 		this.createLoader()
 	}
 
-	// createTransition() {
-	//   this.transition.show();
-	// }
-
 	createLoader() {
 		if (this.images.length > 0) {
 			this.images.forEach((image) => {
@@ -36,7 +32,20 @@ export default class Preloader extends Component {
 					this.onAssetLoaded()
 				}
 			})
-		} else this.onLoaded()
+		} else {
+			this.interval = setInterval(() => {
+				this.length < 99 ? (this.length += 1) : (this.length = 100)
+				this.elements.numberText.innerHTML = `${this.length}%`
+			}, 27)
+
+			gsap
+				.timeline()
+				.to(this.element, {
+					opacity: 1,
+					duration: 3,
+				})
+				.call(() => this.onLoaded())
+		}
 	}
 
 	// Preloading
@@ -88,5 +97,8 @@ export default class Preloader extends Component {
 
 	destroy() {
 		// this.element.parentNode.removeChild(this.element)
+		setTimeout(() => {
+			clearInterval(this.interval)
+		}, 4000)
 	}
 }

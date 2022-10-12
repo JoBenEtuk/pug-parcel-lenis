@@ -15,8 +15,7 @@ export default class Preloader extends Component {
 		this.images = [...document.querySelectorAll('[data-src]')]
 
 		this.length = 0
-
-		// this.createTransition();
+		this.interval
 		this.createLoader()
 	}
 
@@ -84,10 +83,10 @@ export default class Preloader extends Component {
 			x: '100vw',
 			duration: 1.5,
 			ease: 'expo.in',
-		})
+		}).call((_) => this.emit('completed'))
 	}
 
 	destroy() {
-		this.element.parentNode.removeChild(this.element)
+		// this.element.parentNode.removeChild(this.element)
 	}
 }

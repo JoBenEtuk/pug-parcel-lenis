@@ -18,23 +18,30 @@ class App {
 		}
 
 		this.createPreloader()
-
-		this.pages = {
-			'/': new Home(),
-			'/about': new About(),
-		}
-
-		// if (this.url.indexOf("/case") > -1) {
-		//   this.page = this.case;
-		// } else {
-		this.page = this.pages[this.url]
-		// }
-
-		this.page.show(this.url)
+		this.createPages()
 
 		this.addEventListeners()
 		this.addLinksEventsListeners()
 		this.update()
+	}
+
+	createPages() {
+		this.home = new Home()
+		this.about = new About()
+		// this.works = new Works();
+		// this.details = new Details();
+
+		this.pages = {
+			'/': this.home,
+			'/about': this.about,
+			//   "/works": this.works,
+		}
+
+		if (this.url.includes('/works/')) {
+			this.page = this.details
+		} else {
+			this.page = this.pages[this.url]
+		}
 	}
 
 	createPreloader() {
@@ -44,48 +51,35 @@ class App {
 	}
 
 	onPreloaded() {
-		this.page.show()
+		this.preloader.destroy()
+		this.page.show(this.url)
 	}
 
-	createHome() {
-		this.home = new Home()
-	}
-	createAbout() {
-		this.about = new About()
-	}
-
-	// createCase() {
-	//   this.case = new Case();
-	// }
-
-	async onChange({ push = true, url = null }) {
+	async onChange({ url, push = 'true' }) {
 		url = url.replace(window.location.origin, '')
 
-		if (this.isFetching || this.url === url) return
-
-		this.isFetching = true
-
-		this.url = url
-
-		if (this.canvas) {
-			this.canvas.onChange(this.url)
-		}
-
-		await this.page.hide()
+		// await this.transition.show()
 
 		if (push) {
-			window.history.pushState({}, document.title, url)
+			window.history.pushState({}, '', url)
 		}
 
-		if (this.url.indexOf('/case') > -1) {
-			this.page = this.case
+		this.url = window.location.pathname
+		window.scrollTo(0, 0)
+
+		this.page.hide()
+
+		//   this.navigation.onChange(this.url);
+
+		if (this.url.includes('/works/')) {
+			this.page = this.details
 		} else {
 			this.page = this.pages[this.url]
 		}
 
 		await this.page.show(this.url)
 
-		this.isFetching = false
+		// this.transition.hide()
 	}
 
 	/**
